@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="10dp"
+    tools:context=".ConfigureFragment">
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/buttonStartTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_marginEnd="@dimen/text_margin"
+        android:text="@string/start_test" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:layout_above="@+id/buttonStartTest"
+        android:layout_alignParentTop="true"
+        android:foregroundGravity="top|right"
+        android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:isScrollContainer="true">
+
+        <TextView
+            android:id="@+id/tvGPS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gps_text"
+            android:textSize="35sp"
+            android:textColor="@color/design_default_color_primary"/>
+
+        <RadioGroup
+            android:id="@+id/rgGPS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/text_margin"
+            android:paddingEnd="@dimen/text_margin">
+
+            <!--adding a radio button -->
+            <RadioButton
+                android:id="@+id/rbIzatSDK"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="true"
+                android:text="@string/izat_sdk"
+                android:textSize="20sp" />
+
+            <!--adding a radio button -->
+            <RadioButton
+                android:id="@+id/rbAndroidLocMgr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:text="@string/location_mgr"
+                android:textSize="20sp" />
+
+            <RadioButton
+                android:id="@+id/rbGpsOff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:text="@string/off"
+                android:textSize="20sp" />
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginEnd="@dimen/text_margin">
+        <TextView
+            android:id="@+id/tvGPSInterval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/interval_sec"
+            android:paddingStart="@dimen/text_margin"
+            android:paddingEnd="@dimen/text_margin"
+            android:layout_gravity="end"
+            android:textSize="25sp"
+            android:textColor="@color/design_default_color_primary"/>
+
+        <EditText
+            android:id="@+id/etGPSInterval"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:background="@color/design_default_color_secondary"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:hint="@string/gps_interval_default"
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"
+            tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvSensor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/sensor_text"
+            android:textSize="35sp"
+            android:textColor="@color/design_default_color_primary"/>
+
+        <RadioGroup
+            android:id="@+id/rgSensor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:paddingStart="@dimen/text_margin"
+            android:paddingEnd="@dimen/text_margin">
+
+            <!--adding a radio button -->
+            <RadioButton
+                android:id="@+id/rbProxOnBody"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="true"
+                android:text="@string/proximity_onbody_text"
+                android:textSize="20sp" />
+
+            <!--adding a radio button -->
+            <RadioButton
+                android:id="@+id/rbAntiObject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:text="@string/anti_object"
+                android:textSize="20sp" />
+
+            <!--adding a radio button -->
+            <RadioButton
+                android:id="@+id/rbHeartRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:text="@string/heart_rate"
+                android:textSize="20sp" />
+
+            <RadioButton
+                android:id="@+id/rbSensorOff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:text="@string/off"
+                android:textSize="20sp" />
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginEnd="@dimen/text_margin">
+        <TextView
+            android:id="@+id/tvSensorInterval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/interval_sec"
+            android:paddingStart="@dimen/text_margin"
+            android:paddingEnd="@dimen/text_margin"
+            android:layout_gravity="end"
+            android:textSize="25sp"
+            android:textColor="@color/design_default_color_primary"/>
+
+        <EditText
+            android:id="@+id/etSensorInterval"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:background="@color/design_default_color_secondary"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:hint="@string/sensor_interval_default"
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"
+            tools:ignore="Autofill" />
+        </LinearLayout>
+
+        <TextView
+        android:id="@+id/tvDataConnection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/data_connection_text"
+        android:textSize="35sp"
+        android:textColor="@color/design_default_color_primary"/>
+
+        <RadioGroup
+            android:id="@+id/rgDataConnection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/text_margin"
+            android:paddingEnd="@dimen/text_margin">
+
+            <!--adding a radio button -->
+            <RadioButton
+                android:id="@+id/rbWifi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:text="@string/wifi"
+                android:textSize="20sp" />
+
+            <!--adding a radio button -->
+            <RadioButton
+                android:id="@+id/rbCell"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:text="@string/cellular"
+                android:textSize="20sp" />
+            <RadioButton
+                android:id="@+id/rbDataOff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="true"
+                android:text="@string/off"
+                android:textSize="20sp" />
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginEnd="@dimen/text_margin">
+        <TextView
+            android:id="@+id/tvDataConnectionInterval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/interval_sec"
+            android:paddingStart="@dimen/text_margin"
+            android:paddingEnd="@dimen/text_margin"
+            android:layout_gravity="end"
+            android:textSize="25sp"
+            android:textColor="@color/design_default_color_primary"/>
+
+        <EditText
+            android:id="@+id/etDataConnectionInterval"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:background="@color/design_default_color_secondary"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:hint="@string/data_connection_interval_default"
+            android:paddingStart="10sp"
+            android:paddingEnd="10sp"
+            tools:ignore="Autofill"/>
+        </LinearLayout>
+
+    </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
+</FrameLayout>

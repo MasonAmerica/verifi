@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/ConfigureFragment">
+
+    <fragment
+        android:id="@+id/ConfigureFragment"
+        android:name="com.example.verifi.ConfigureFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/fragment_configure">
+
+        <action
+            android:id="@+id/action_ConfigureFragment_to_StatusFragment"
+            app:destination="@id/StatusFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/StatusFragment"
+        android:name="com.example.verifi.StatusFragment"
+        android:label="Status"
+        tools:layout="@layout/fragment_status" >
+        <action
+            android:id="@+id/action_StatusFragment_to_ConfigureFragment"
+            app:destination="@id/ConfigureFragment" />
+    </fragment>
+</navigation>
