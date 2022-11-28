@@ -211,9 +211,7 @@ public class ConfigureFragment extends Fragment {
             }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().equals(""))
-                    return;
-                else
+                if (!s.toString().equals(""))
                     testPref.setGpsInterval(Integer.parseInt(s.toString()));
             }
             @Override
@@ -229,9 +227,7 @@ public class ConfigureFragment extends Fragment {
             }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().equals(""))
-                    return;
-                else
+                if (!s.toString().equals(""))
                     testPref.setSensorInterval(Integer.parseInt(s.toString()));
             }
             @Override
@@ -247,9 +243,7 @@ public class ConfigureFragment extends Fragment {
             }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().equals(""))
-                    return;
-                else
+                if (!s.toString().equals(""))
                     testPref.setDataConnInterval(Integer.parseInt(s.toString()));
             }
             @Override

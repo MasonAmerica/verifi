@@ -24,15 +24,15 @@ public class TestPreference {
     private TestPreference() {
         enableGPS = true;
         gpsType = GPSType.IZATSDK;
-        gpsInterval = 180; //in sec
+        gpsInterval = 180; //3 min (3*60) in sec
 
         enableSensor = true;
         sensorType = SensorType.PROXIMITY;
-        sensorInterval = 300; //in sec
+        sensorInterval = 3600; //1 hour (60*60) in sec
 
-        enableDataConn = false;
-        dataConnType = DataConnType.WIFI;
-        dataConnInterval = 3600; //in sec
+        enableDataConn = true;
+        dataConnType = DataConnType.CELL;
+        dataConnInterval = 14400; //4 hours (4*60*60) in sec
 
     }
 

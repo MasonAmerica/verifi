@@ -25,11 +25,11 @@
     <string name="proximity_onbody_text">Proximity/OnBody</string>
     <string name="anti_object">Anti Object</string>
     <string name="heart_rate">Heart Rate</string>
-    <string name="sensor_interval_default">300</string>
+    <string name="sensor_interval_default">3600</string>
     <string name="data_connection_text">Select Connection type</string>
     <string name="wifi">WiFi</string>
     <string name="cellular">Cellular</string>
-    <string name="data_connection_interval_default">3600</string>
+    <string name="data_connection_interval_default">14400</string>
     <string name="configure_test">CONFIGURE</string>
 
 </resources>

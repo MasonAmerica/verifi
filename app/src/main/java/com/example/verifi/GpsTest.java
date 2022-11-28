@@ -84,7 +84,7 @@ public class GpsTest {
                 stopIzatSDK();
             }
 
-            Log.d(TAG, "Requesting FLP updates: timeInterval= " + gpsTestInterval);
+            Log.d(TAG, "Requesting FLP updates: timeInterval= " + gpsTestInterval + " ms");
 
             mFlpService = mIzatMgr.connectFlpService();
             IZatFlpService.IzatFlpRequest req = IZatFlpService.IzatFlpRequest.getBackgroundFlprequest();
@@ -117,7 +117,7 @@ public class GpsTest {
     private void startLocMgr() {
         locMgrListener = new LocMgrListener();
 
-        Log.d(TAG, "Requesting Android Location Manager updates: timeInterval= " + gpsTestInterval);
+        Log.d(TAG, "Requesting Android Location Manager updates: timeInterval= " + gpsTestInterval + " ms");
         locMgr = (LocationManager) parentService.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(parentService, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(parentService, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -161,7 +161,6 @@ public class GpsTest {
                     Date df = new java.util.Date(loc.getTime());
                     String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
 
-                    //parentService.sendStatus(ts + " Izat - Lat: " + latitudeStr + " Lng: " + longitudeStr + " HAcc: " + hAccStr);
                     parentService.sendStatus(ts + " - " + latitudeStr + " - " + longitudeStr + " - " + hAccStr);
                 }
             }
@@ -181,7 +180,6 @@ public class GpsTest {
             Date df = new java.util.Date(location.getTime());
             String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
 
-            //parentService.sendStatus(ts + " LocMgr - Lat: " + latitudeStr + " Lng: " + longitudeStr + " HAcc: " + hAccStr);
             parentService.sendStatus(ts + " - " + latitudeStr + " - " + longitudeStr + " - " + hAccStr);
         }
 
@@ -215,14 +213,6 @@ public class GpsTest {
                     break;
             }
         }
-    }
-
-    public void startSensorTest() {
-
-    }
-
-    public void stopSensorTest() {
-
     }
 
 }
