@@ -43,7 +43,12 @@
         </activity>
 
         <receiver
-            android:name=".DataConnAlarmReceiver"
+            android:name=".DataConnAlarm"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
+            android:name=".SensorAlarm"
             android:enabled="true"
             android:exported="false" />
     </application>

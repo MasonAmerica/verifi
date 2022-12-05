@@ -136,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:checked="true"
-                android:text="@string/proximity_onbody_text"
+                android:text="@string/offbody"
                 android:textSize="20sp" />
 
             <!--adding a radio button -->
@@ -146,7 +146,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:checked="false"
-                android:text="@string/anti_object"
+                android:text="@string/offbody_enhanced"
                 android:textSize="20sp" />
 
             <!--adding a radio button -->
@@ -157,6 +157,16 @@
                 android:layout_gravity="start"
                 android:checked="false"
                 android:text="@string/heart_rate"
+                android:textSize="20sp" />
+
+            <!--adding a radio button -->
+            <RadioButton
+                android:id="@+id/rbOffBodyAndHeartRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:text="@string/offbody_heart_rate"
                 android:textSize="20sp" />
 
             <RadioButton

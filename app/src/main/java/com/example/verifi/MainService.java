@@ -1,44 +1,33 @@
 package com.example.verifi;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class MainService extends Service {
     private static final String TAG = "verifi.MainService";
-
-    public static final String SENDSTATUS = "SENDSTATUS";
-    public static final String DATA_CONN_ALARM_ACTION = "data_conn_alarm_action";
-
-    private TestScheduler testScheduler;
+    public static TestScheduler testScheduler;
     private TestPreference testPref;
+    public static final String SENDSTATUS = "SENDSTATUS";
 
-    private static PendingIntent pendingIntent;
-    private static AlarmManager alarmManager;
-
+    private DataConnAlarm dataConnAlarm;
+    private SensorAlarm sensorAlarm;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        //TODO: enable this if needed
-        //PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        //String packageName = getPackageName();
-        //if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-        //    Intent intent = new Intent();
-        //    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        //    intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-        //    intent.setData(Uri.parse("package:" + packageName));
-        //    startActivity(intent);
-        //}
-
         //Create Test Scheduler object
-        testScheduler = TestScheduler.getInstance(this);
+        //testScheduler = TestScheduler.getInstance(this);
+        testScheduler = new TestScheduler("VerifiTestScheduler", this);
+        testScheduler.start();
 
+        //Get TestPreference instance
         testPref = TestPreference.getInstance();
 
     }
@@ -60,19 +49,26 @@ public class MainService extends Service {
         catch (InterruptedException e){
             Log.e(TAG,"HandlerThread interrupted");
         }
+        Date df = new Date();
+        String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
+        sendStatus(ts + " - Start Test");
 
         //Start Test based on TestPreference settings
         if (testPref.isEnableGPS()) {
             testScheduler.startGPSTest();
+            sendStatus("Type: " + testPref.getGpsType() + " Interval: " + testPref.getGpsInterval() + " sec");
         }
 
         if (testPref.isEnableSensor()) {
-            testScheduler.startSensorTest();
+            //Create Sensor Alarm. Its alarm receiver will start Sensor Test
+            sensorAlarm = new SensorAlarm(getApplicationContext());
+            sendStatus("Type: " + testPref.getSensorType() + " Interval: " + testPref.getSensorInterval() + " sec");
         }
 
         if (testPref.isEnableDataConn()) {
-            //start Data connection Alarm. Alarm receiver will start Data Conn Test
-            startDataConnAlarm(getApplicationContext());
+            //Create Data connection Alarm. Its alarm receiver will start Data Conn Test
+            dataConnAlarm = new DataConnAlarm(getApplicationContext());
+            sendStatus("Type: " + testPref.getDataConnType() + " Interval: " + testPref.getDataConnInterval() + " sec");
         }
 
         Log.d(TAG, "MainService started...");
@@ -91,16 +87,17 @@ public class MainService extends Service {
 
         if (testPref.isEnableSensor()) {
             testScheduler.stopSensorTest();
+            sensorAlarm.stopSensorAlarm();
         }
 
         if (testPref.isEnableDataConn()) {
             testScheduler.stopDataConnTest();
-            stopDataConnAlarm();
+            dataConnAlarm.stopDataConnAlarm();
         }
 
         if(testScheduler != null){
             testScheduler.quitSafely();
-            testScheduler.interrupt();
+            //testScheduler.interrupt();
         }
 
         Log.d(TAG, "MainService stopped...");
@@ -114,27 +111,8 @@ public class MainService extends Service {
         sendBroadcast(intent);
     }
 
-
-    public static void startDataConnAlarm(Context context)
-    {
-        Intent intent = new Intent(context, DataConnAlarmReceiver.class).setAction(DATA_CONN_ALARM_ACTION);
-
-        pendingIntent = PendingIntent.getBroadcast(
-                context, 51285128, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-        long currentTime = System.currentTimeMillis();
-        long futureTime =  TestPreference.getInstance().getDataConnInterval() * 1000L;
-
-        long alarmTime =  currentTime + futureTime;
-
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime, pendingIntent);
-
-        Log.d(TAG, "Current time: " + currentTime + " set Alarm to: " + alarmTime);
+    public static TestScheduler getTestScheduler() {
+        return testScheduler;
     }
 
-    public static void stopDataConnAlarm() {
-        alarmManager.cancel(pendingIntent);
-    }
 }

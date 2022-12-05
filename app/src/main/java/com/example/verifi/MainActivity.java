@@ -58,13 +58,14 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        //appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        //NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
         fm.beginTransaction().add(R.id.main_container, configureFragment, "fr1").show(configureFragment).commit();
         fm.beginTransaction().add(R.id.main_container, statusFragment, "fr2").hide(statusFragment).commit();
         updater = (StatusUpdater) statusFragment;
+
+        getSensorsPermission();
+        if (checkSelfPermission(Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Body sensors permission denied");
+        }
 
         if(!runtime_permissions()) {
             registerReceiver();
@@ -113,11 +114,13 @@ public class MainActivity extends AppCompatActivity {
 
         if ( ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
              ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+             ContextCompat.checkSelfPermission(this, Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
 
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                                             Manifest.permission.ACCESS_COARSE_LOCATION,
-                                            Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                                            Manifest.permission.BODY_SENSORS}, 100);
 
             return true;
         }
@@ -130,12 +133,17 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 100) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                 grantResults[1] == PackageManager.PERMISSION_GRANTED &&
-                grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+                grantResults[2] == PackageManager.PERMISSION_GRANTED &&
+                grantResults[3] == PackageManager.PERMISSION_GRANTED) {
                     registerReceiver();
                     setTestStarted(false);
             } else {
                 runtime_permissions();
             }
         }
+    }
+
+    public void getSensorsPermission() {
+        requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 1);
     }
 }

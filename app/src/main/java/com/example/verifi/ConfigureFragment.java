@@ -84,14 +84,17 @@ public class ConfigureFragment extends Fragment {
             binding.etSensorInterval.setFocusableInTouchMode(false);
         } else {
             switch(testPref.getSensorType()) {
-                case PROXIMITY:
+                case OFFBODY:
                     binding.rbProxOnBody.setChecked(true);
                     break;
-                case ANTIOBJECT:
+                case OFFBODYENHANCED:
                     binding.rbAntiObject.setChecked(true);
                     break;
                 case HEARTRATE:
                     binding.rbHeartRate.setChecked(true);
+                    break;
+                case OFFBODYANDHEARTRATE:
+                    binding.rbOffBodyAndHeartRate.setChecked(true);
                     break;
             }
             binding.etSensorInterval.setEnabled(true);
@@ -152,19 +155,25 @@ public class ConfigureFragment extends Fragment {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch(checkedId){
                     case R.id.rbProxOnBody:
-                        testPref.setSensorType(SensorType.PROXIMITY);
+                        testPref.setSensorType(SensorType.OFFBODY);
                         testPref.setEnableSensor(true);
                         binding.etSensorInterval.setEnabled(true);
                         binding.etSensorInterval.setFocusableInTouchMode(true);
                         break;
                     case R.id.rbAntiObject:
-                        testPref.setSensorType(SensorType.ANTIOBJECT);
+                        testPref.setSensorType(SensorType.OFFBODYENHANCED);
                         testPref.setEnableSensor(true);
                         binding.etSensorInterval.setEnabled(true);
                         binding.etSensorInterval.setFocusableInTouchMode(true);
                         break;
                     case R.id.rbHeartRate:
                         testPref.setSensorType(SensorType.HEARTRATE);
+                        testPref.setEnableSensor(true);
+                        binding.etSensorInterval.setEnabled(true);
+                        binding.etSensorInterval.setFocusableInTouchMode(true);
+                        break;
+                    case R.id.rbOffBodyAndHeartRate:
+                        testPref.setSensorType(SensorType.OFFBODYANDHEARTRATE);
                         testPref.setEnableSensor(true);
                         binding.etSensorInterval.setEnabled(true);
                         binding.etSensorInterval.setFocusableInTouchMode(true);
@@ -265,7 +274,6 @@ public class ConfigureFragment extends Fragment {
                 }
 
                 ((MainActivity) requireActivity()).showStatusFragment();
-                //NavHostFragment.findNavController(ConfigureFragment.this).navigate(R.id.action_ConfigureFragment_to_StatusFragment);
             }
         });
     }
