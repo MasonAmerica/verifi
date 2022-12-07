@@ -62,11 +62,6 @@ public class MainActivity extends AppCompatActivity {
         fm.beginTransaction().add(R.id.main_container, statusFragment, "fr2").hide(statusFragment).commit();
         updater = (StatusUpdater) statusFragment;
 
-        getSensorsPermission();
-        if (checkSelfPermission(Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "Body sensors permission denied");
-        }
-
         if(!runtime_permissions()) {
             registerReceiver();
             setTestStarted(false);
@@ -143,7 +138,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void getSensorsPermission() {
-        requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 1);
-    }
 }

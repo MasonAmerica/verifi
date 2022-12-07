@@ -23,7 +23,6 @@ public class MainService extends Service {
         super.onCreate();
 
         //Create Test Scheduler object
-        //testScheduler = TestScheduler.getInstance(this);
         testScheduler = new TestScheduler("VerifiTestScheduler", this);
         testScheduler.start();
 
