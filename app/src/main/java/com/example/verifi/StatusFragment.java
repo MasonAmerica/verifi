@@ -2,11 +2,14 @@ package com.example.verifi;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,6 +45,7 @@ public class StatusFragment extends Fragment implements StatusUpdater{
 
         binding.tvTestStatus.setMovementMethod(new ScrollingMovementMethod());
 
+        //Stop button listener
         binding.buttonStopTest.setOnClickListener(view1 -> {
             if (((MainActivity) requireActivity()).isTestStarted()) {
 
@@ -57,6 +61,27 @@ public class StatusFragment extends Fragment implements StatusUpdater{
             }
 
         });
+
+        //TextView listener
+        binding.tvTestStatus.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                binding.scrollView.fullScroll(ScrollView.FOCUS_DOWN); //auto scroll to bottom
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1,
+                                          int arg2, int arg3) {
+                //override stub
+            }
+
+            @Override
+            public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+                                      int arg3) {
+                //override stub
+            }
+        });
+
         Log.d(TAG, "onViewCreated");
     }
 
@@ -94,7 +119,6 @@ public class StatusFragment extends Fragment implements StatusUpdater{
     @Override
     public void updateStatus(String status) {
         binding.tvTestStatus.append("\n" + status);
-        //Log.d(TAG, "updateStatus: " + status);
     }
 
 }

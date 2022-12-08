@@ -14,6 +14,7 @@ import java.util.Locale;
 
 public class SensorTest {
     private static final String TAG = "verifi.SensorTest";
+    private static final int HEART_RATE_DURATION_SEC = 30;
 
     private final Context mContext;
     private boolean isHRStarted = false;
@@ -26,6 +27,7 @@ public class SensorTest {
     private final Sensor heartRateSensor;
     private final Sensor offBodySensor;
     private Sensor offBodyEnhancedSensor;
+    private int heartRateCounter;
 
     private final SensorEventListener offBodySensorTestListener = new SensorEventListener() {
         @Override
@@ -34,8 +36,8 @@ public class SensorTest {
             String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
 
             if (sensorEvent.sensor.getType() == Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT) {
+                    //Log.d(TAG, "OBD Sensor - Value: " + sensorEvent.values[0] + " Accuracy: " + sensorEvent.accuracy);
                     sendStatus(ts + " - OBD value: " + sensorEvent.values[0] + " Acc: " + sensorEvent.accuracy);
-                    Log.d(TAG, "OBD Sensor - Value: " + sensorEvent.values[0] + " Accuracy: " + sensorEvent.accuracy);
                     stopOffBodySensorTest();
             }
         }
@@ -48,15 +50,22 @@ public class SensorTest {
     private final SensorEventListener heartRateSensorTestListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
-            Date df = new Date();
-            String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
 
             if (sensorEvent.sensor.getType() == Sensor.TYPE_HEART_RATE) {
-                    sendStatus(ts + " - Heart Rate value: " + sensorEvent.values[0] + " Acc: " + sensorEvent.accuracy);
-                    Log.d(TAG, "HR Sensor - Value: " + sensorEvent.values[0] + " Accuracy: " + sensorEvent.accuracy);
+                if (heartRateCounter > 0) {
+                    heartRateCounter--;
+                    //Log.d(TAG, "HR Sensor - Value: " + sensorEvent.values[0] + " Accuracy: " + sensorEvent.accuracy);
 
-                    //stop HR sensor test in 30 seconds
-                    MainService.getTestScheduler().postDelayedRunnable(() -> stopHRSensorTest(), 30000);
+                    //display the last 3 readings to the status fragment
+                    if (heartRateCounter <= 2) {
+                        Date df = new Date();
+                        String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
+                        sendStatus(ts + " - Heart Rate value: " + sensorEvent.values[0] + " Acc: " + sensorEvent.accuracy);
+
+                        if (heartRateCounter == 0)
+                            stopHRSensorTest();
+                    }
+                }
             }
         }
 
@@ -120,6 +129,7 @@ public class SensorTest {
 
     private void startHRSensorTest() {
         if (!isHRStarted && heartRateSensor != null) {
+            heartRateCounter = HEART_RATE_DURATION_SEC;  //do 30 secs of readings
             sensorManager.registerListener(heartRateSensorTestListener, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
             Log.d(TAG, "Start Heart Rate Sensor");
             isHRStarted = true;

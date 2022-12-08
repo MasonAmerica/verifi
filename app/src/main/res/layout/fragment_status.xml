@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/buttonStopTest"
         android:layout_alignParentTop="true"
-        android:foregroundGravity="top|right">
+        android:fillViewport="true">
 
         <TextView
             android:id="@+id/tvTestStatus"
