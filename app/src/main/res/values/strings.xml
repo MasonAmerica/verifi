@@ -26,11 +26,12 @@
     <string name="offbody_enhanced">Off Body Enhanced</string>
     <string name="heart_rate">Heart Rate</string>
     <string name="offbody_heart_rate">Off Body And Heart Rate</string>
-    <string name="sensor_interval_default">3600</string>
+    <string name="ecg">ECG</string>
+    <string name="sensor_interval_default">60</string>
     <string name="data_connection_text">Select Connection type</string>
     <string name="wifi">WiFi</string>
     <string name="cellular">Cellular</string>
-    <string name="data_connection_interval_default">14400</string>
+    <string name="data_connection_interval_default">900</string>
     <string name="configure_test">CONFIGURE</string>
 
 </resources>

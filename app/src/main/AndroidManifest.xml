@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.verifi">
+    package="com.mason.verifi">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -8,6 +8,7 @@
 
     <uses-permission android:name="com.qualcomm.permission.IZAT" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -28,12 +29,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Verifi">
         <service
-            android:name=".MainService"
+            android:name="com.mason.verifi.MainService"
             android:enabled="true"
             android:exported="false" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.mason.verifi.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,14 +44,17 @@
         </activity>
 
         <receiver
-            android:name=".DataConnAlarm"
+            android:name="com.mason.verifi.DataConnAlarm"
             android:enabled="true"
             android:exported="false" />
 
         <receiver
-            android:name=".SensorAlarm"
+            android:name="com.mason.verifi.SensorAlarm"
             android:enabled="true"
             android:exported="false" />
+
+        <uses-library android:name="masonamerica.platform" />
+        <uses-library android:name="mason.hardware.platform" />
     </application>
 
 </manifest>
