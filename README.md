@@ -41,7 +41,7 @@ To get a new URL address, go to https://webhook.site from your web browser and
 copy the "post" URL address into the code.
 The new URL address should be pasted to the URL_TEST_ADDRESS string in the DataConnTest.java file.
 
-For testing data connection using cellular, disable Wifi first. 
+For testing data connection using cellular, disable Wifi because its the default connectivity. 
 
 BUILD APK
 
