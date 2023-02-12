@@ -39,7 +39,7 @@ public class TestPreference {
 
     private TestPreference() {
         enableGPS = true;
-        gpsType = GPSType.IZATSDK;
+        gpsType = GPSType.LOCMGR;
         gpsInterval = 180; //3 min (3*60) in sec
 
         enableSensor = true;

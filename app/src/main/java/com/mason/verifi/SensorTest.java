@@ -26,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+//Enable for ECG test
+/*
 import mason.hardware.platform.ECGSensorManager;
 import mason.hardware.platform.MasonHardwareFramework;
 import mason.hardware.platform.ecg.ECGEnergy;
@@ -40,11 +42,12 @@ import mason.hardware.platform.ecg.ECGStress;
 import mason.hardware.platform.ecg.ECGUserID;
 import mason.hardware.platform.ecg.ECGUserMetadata;
 import mason.hardware.platform.ecg.ECGUserPresence;
+*/
 
 // This class starts sensor (HR, Offbody, or ECG) test
 public class SensorTest {
     private static final String TAG = "verifi.SensorTest";
-    private static final int HEART_RATE_DURATION_SEC = 30;
+    private static final int HEART_RATE_SAMPLE_COUNT = 20;
     private static final int ECG_DURATION_SEC = 20;
 
     private final Context mContext;
@@ -52,6 +55,7 @@ public class SensorTest {
     private boolean isOffBodyStarted = false;
     private boolean isOffBodyEnhancedStarted = false;
     private boolean isEcgStarted = false;
+    private boolean isSpo2Started = false;
 
     private final SensorType sensorType;
 
@@ -59,15 +63,22 @@ public class SensorTest {
     private final Sensor heartRateSensor;
     private final Sensor offBodySensor;
     //private final Sensor offBodyEnhancedSensor; //Not supported, yet
-    private final Sensor ecgSensorData;
+    private final Sensor spo2Sensor;
 
+    //Enable for ECG test
+    //private final ECGSensorManager ecgManager;
+    //private final Sensor ecgSensorData;
     //Enable this to get ECG raw sample data
     //private final Sensor ecgSampleData;
 
-    private final ECGSensorManager ecgManager;
+    private static final int qSensorTypeBase = 33171000;
+
+    private static final int sensorTypeRespiratory = qSensorTypeBase + 5;
+    private static final int sensorTypeSpo2 = qSensorTypeBase + 6;
 
     private int heartRateCounter = 0;
     private int ecgCounter = 0;
+    private int spo2Counter = 0;
 
     public SensorTest(Context context) {
         TestPreference testPref = TestPreference.getInstance();
@@ -77,18 +88,21 @@ public class SensorTest {
         sensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
         heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         offBodySensor = sensorManager.getDefaultSensor(Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT);
+        spo2Sensor = sensorManager.getDefaultSensor(sensorTypeSpo2);
+
+
+        //Enable for ECG test
+        //ECG sensor manager which is dispatched from ecgSensorDataTestListener's onSensorChanged()
+        //ecgManager = MasonHardwareFramework.get(mContext, ECGSensorManager.class);
+
+        //mHeartKeySensorEventListener is is actual listener for handling sensor event
+        //ecgManager.registerEventListener(mHeartKeySensorEventListener);
 
         //ECG sensor to be registered with ecgSensorDataTestListener in startEcgSensorTest()
-        ecgSensorData = sensorManager.getDefaultSensor(ECGSensorManager.SensorType.ECG_SENSORS_DATA);
+        //ecgSensorData = sensorManager.getDefaultSensor(ECGSensorManager.SensorType.ECG_SENSORS_DATA);
 
         //Enable this to get ECG raw sample data
         //ecgSampleData = sensorManager.getDefaultSensor(ECGSensorManager.SensorType.ECG_SAMPLES_DATA);
-
-        //ECG sensor manager which is dispatched from ecgSensorDataTestListener's onSensorChanged()
-        ecgManager = MasonHardwareFramework.get(mContext, ECGSensorManager.class);
-
-        //mHeartKeySensorEventListener is is actual listener for handling sensor event
-        ecgManager.registerEventListener(mHeartKeySensorEventListener);
 
     }
 
@@ -119,15 +133,15 @@ public class SensorTest {
                     heartRateCounter--;
                     //Log.d(TAG, "HR Sensor - Value: " + sensorEvent.values[0] + " Accuracy: " + sensorEvent.accuracy);
 
-                    //only display the last 4 readings to the status fragment to prevent flooding the status screen
-                    if (heartRateCounter <= 3) {
+                    //only display the last 5 readings to the status fragment to prevent flooding the status screen
+                    //if (heartRateCounter <= 4) {
                         Date df = new Date();
                         String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
                         sendStatus(ts + " - Heart Rate value: " + sensorEvent.values[0] + " Acc: " + sensorEvent.accuracy);
 
                         if (heartRateCounter == 0)
                             stopHRSensorTest();
-                    }
+                    //}
                 }
             }
         }
@@ -138,12 +152,40 @@ public class SensorTest {
         }
     };
 
+    private final SensorEventListener spo2SensorTestListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent sensorEvent) {
+
+            if (sensorEvent.sensor.getType() == sensorTypeSpo2) {
+                if (spo2Counter > 0) {
+                    spo2Counter--;
+                    //Log.d(TAG, "SPO2 Sensor - Value: " + sensorEvent.values[1] + " Accuracy: " + sensorEvent.accuracy);
+
+                    //only display the last 11 readings to the status fragment to prevent flooding the status screen
+                    //if (spo2Counter <= 10) {
+                        Date df = new Date();
+                        String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
+                        sendStatus(ts + " - SPO2 value: " + sensorEvent.values[1] + " Acc: " + sensorEvent.accuracy);
+
+                        if (spo2Counter == 0)
+                            stopSPO2SensorTest();
+                    //}
+                }
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            Log.d(TAG, "Phillips PPG SPO2 accuracy changed to: " + accuracy);
+        }
+    };
 
     //Sensor event listener for ECG sensor data
     private final SensorEventListener ecgSensorDataTestListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            ecgManager.dispatch(event);
+            //Enable for ECG test
+            //ecgManager.dispatch(event);
         }
 
         @Override
@@ -168,6 +210,8 @@ public class SensorTest {
     */
 
     //ECG sensor event handler which is invoked by ECG sensor manager
+    //Enable for ECG test
+    /*
     private final ECGEventListener mHeartKeySensorEventListener = new ECGEventListener () {
         @Override
         public void HandleHeartRate(ECGHeartRate ecgHeartRate) {
@@ -186,28 +230,20 @@ public class SensorTest {
 
         @Override
         public void HandleStress(ECGStress ecgStress) {
-            /*
-            String score = Integer.toString(ecgStress.getScore());
-            String state = Integer.toString(ecgStress.getState());
-
-            Date df = new Date();
-            String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
-
-            sendStatus(ts + " - Stress: " + score + " State: " + state);
-             */
+            //String score = Integer.toString(ecgStress.getScore());
+            //String state = Integer.toString(ecgStress.getState());
+            //Date df = new Date();
+            //String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
+            //sendStatus(ts + " - Stress: " + score + " State: " + state);
         }
 
         @Override
         public void HandleEnergy(ECGEnergy ecgEnergy) {
-            /*
-            String totalEnergy = Float.toString(ecgEnergy.getTotalEnergy());
-            String progress = Integer.toString(ecgEnergy.getProgress());
-
-            Date df = new Date();
-            String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
-
-            sendStatus(ts + " - Total Energy: " + totalEnergy + " Progress: " + progress);
-             */
+            //String totalEnergy = Float.toString(ecgEnergy.getTotalEnergy());
+            //String progress = Integer.toString(ecgEnergy.getProgress());
+            //Date df = new Date();
+            //String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
+            //sendStatus(ts + " - Total Energy: " + totalEnergy + " Progress: " + progress);
         }
 
         @Override
@@ -217,47 +253,35 @@ public class SensorTest {
 
         @Override
         public void HandleHeartRateVariability(ECGHeartRateVariability ecgHeartRateVariability) {
-            /*
-            String hrv = Integer.toString(ecgHeartRateVariability.getHeartRateVariability());
-            String progress = Integer.toString(ecgHeartRateVariability.getProgress());
-
-            Date df = new Date();
-            String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
-
-            sendStatus(ts + " - HR Variability: " + hrv + " Progress " + progress);
-             */
-
+            //String hrv = Integer.toString(ecgHeartRateVariability.getHeartRateVariability());
+            //String progress = Integer.toString(ecgHeartRateVariability.getProgress());
+            //Date df = new Date();
+            //String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
+            //sendStatus(ts + " - HR Variability: " + hrv + " Progress " + progress);
         }
 
         @Override
         public void HandleUserPresence(ECGUserPresence ecgUserPresence) {
-            /*
-            String presence = Integer.toString(ecgUserPresence.getUserPresence());
-            String alive = Integer.toString(ecgUserPresence.getUserAlive());
-            String sQuality = Integer.toString(ecgUserPresence.getSignalQuality());
-
-            Date df = new Date();
-            String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
-
-            sendStatus(ts + " - Presence: " + presence  + " Alive: " + alive  +  " Sig Qual: " + sQuality);
-             */
+            //String presence = Integer.toString(ecgUserPresence.getUserPresence());
+            //String alive = Integer.toString(ecgUserPresence.getUserAlive());
+            //String sQuality = Integer.toString(ecgUserPresence.getSignalQuality());
+            //Date df = new Date();
+            //String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
+            //sendStatus(ts + " - Presence: " + presence  + " Alive: " + alive  +  " Sig Qual: " + sQuality);
         }
 
         @Override
         public void HandleECGSamples(ECGSamples ecgSamples) {
             //Enable this to get ECG raw sample data
-            /*
-            Date df = new Date();
-            String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
-
-            float[] samples = ecgSamples.getSamples();
-            int subType = ecgSamples.getSubtype();
-            String str = ts + " Raw Type: " + subType + " Samples: ";
-            for (int i = 0; i < samples.length; ++i) {
-                str += samples[i] + " ";
-            }
-            sendStatus(str);
-            */
+            //Date df = new Date();
+            //String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
+            //float[] samples = ecgSamples.getSamples();
+            //int subType = ecgSamples.getSubtype();
+            //String str = ts + " Raw Type: " + subType + " Samples: ";
+            //for (int i = 0; i < samples.length; ++i) {
+            //    str += samples[i] + " ";
+            //}
+            //sendStatus(str);
         }
 
         @Override
@@ -287,8 +311,8 @@ public class SensorTest {
             String msg = "Use case:" + useCase + "Auth enabled:" + authMode;
             sendStatus(msg);
         }
-
     };
+    */
 
     public void startSensorTest() {
         switch(sensorType) {
@@ -302,6 +326,7 @@ public class SensorTest {
 
             case HEARTRATE:
                 startHRSensorTest();
+                startSPO2SensorTest();
                 break;
 
             case OFFBODYANDHEARTRATE:
@@ -326,6 +351,7 @@ public class SensorTest {
 
             case HEARTRATE:
                 stopHRSensorTest();
+                stopSPO2SensorTest();
                 break;
 
             case OFFBODYANDHEARTRATE:
@@ -340,7 +366,7 @@ public class SensorTest {
 
     private void startHRSensorTest() {
         if (!isHRStarted && heartRateSensor != null) {
-            heartRateCounter = HEART_RATE_DURATION_SEC;  //do 30 secs of HR sensor readings
+            heartRateCounter = HEART_RATE_SAMPLE_COUNT;
             sensorManager.registerListener(heartRateSensorTestListener, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
             Log.d(TAG, "Start Heart Rate Sensor");
             isHRStarted = true;
@@ -352,6 +378,23 @@ public class SensorTest {
             sensorManager.unregisterListener(heartRateSensorTestListener);
             Log.d(TAG, "Stop Heart Rate Sensor");
             isHRStarted = false;
+        }
+    }
+
+    private void startSPO2SensorTest() {
+        if (!isSpo2Started && spo2Sensor != null) {
+            spo2Counter = HEART_RATE_SAMPLE_COUNT;
+            sensorManager.registerListener(spo2SensorTestListener, spo2Sensor, SensorManager.SENSOR_DELAY_NORMAL);
+            Log.d(TAG, "Start SPO2 Sensor");
+            isSpo2Started = true;
+        }
+    }
+
+    private void stopSPO2SensorTest() {
+        if (isSpo2Started) {
+            sensorManager.unregisterListener(spo2SensorTestListener);
+            Log.d(TAG, "Stop SPO2 Sensor");
+            isSpo2Started = false;
         }
     }
 
@@ -382,6 +425,8 @@ public class SensorTest {
     }
 
     private void startEcgSensorTest() {
+        //Enable for ECG test
+        /*
         if (!isEcgStarted && ecgSensorData != null) {
             ecgCounter = ECG_DURATION_SEC;  //initialize the ECG data reading counter
             sensorManager.registerListener(ecgSensorDataTestListener, ecgSensorData, SensorManager.SENSOR_DELAY_NORMAL);
@@ -391,9 +436,12 @@ public class SensorTest {
 
             isEcgStarted = true;
         }
+        */
     }
 
     private void stopEcgSensorTest() {
+        //Enable for ECG test
+        /*
         if (isEcgStarted) {
             sensorManager.unregisterListener(ecgSensorDataTestListener);
 
@@ -402,6 +450,7 @@ public class SensorTest {
 
             isEcgStarted = false;
         }
+        */
     }
 
     private synchronized void sendStatus(String message){
