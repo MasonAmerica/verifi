@@ -19,6 +19,11 @@ updates along with the timestamp of when the test is performed.
 To measure battery life, users need to charge the battery to 100% then start the test.
 Take note of the time when the first test is started and the time when the battery level is near 0%.
 
+The following android permissions are requested and required to be granted:
+1. Location 
+2. Sensors
+3. External storage access
+
 To start and stop the test:
 Select the test feature and interval of the test then click on "Start" to start the test.
 The status of each test will be displayed on the Status screen.
