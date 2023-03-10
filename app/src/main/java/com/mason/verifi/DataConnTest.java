@@ -47,7 +47,7 @@ public class DataConnTest {
     private static final String TAG = "verifi.DataConnTest";
 
     //This address must be updated every 30 days since it's updated by webhook
-    private static final String URL_TEST_ADDRESS = "https://webhook.site/ce16c084-c276-4ab8-9843-a18dd79b0a31";
+    private static final String URL_TEST_ADDRESS = "https://webhook.site/d295cbb5-1ff8-4e59-8a94-4fe82ac460cb";
 
     private static final String DC_TEST_FILENAME = "verifi_dc_test.png";
 

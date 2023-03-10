@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 public class TestScheduler extends HandlerThread {
     private static final String TAG = "verifi.TestScheduler";
     private CustomHandler mHandler;
+    private SensorAlarm mSensorAlarm;
 
     final static int START_GPS = 1;
     final static int STOP_GPS = 2;
@@ -53,7 +54,8 @@ public class TestScheduler extends HandlerThread {
         addMessage(TestScheduler.STOP_GPS);
     }
 
-    public void startSensorTest() {
+    public void startSensorTest(SensorAlarm sensorAlarm) {
+        mSensorAlarm = sensorAlarm;
         addMessage(TestScheduler.START_SENSOR);
     }
     public void stopSensorTest() {
@@ -101,7 +103,7 @@ public class TestScheduler extends HandlerThread {
                     break;
 
                 case START_SENSOR:
-                    sensorTest.startSensorTest();
+                    sensorTest.startSensorTest(mSensorAlarm);
                     break;
 
                 case STOP_SENSOR:

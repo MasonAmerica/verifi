@@ -14,6 +14,7 @@ package com.mason.verifi;
  */
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -70,6 +71,10 @@ public class ConfigureFragment extends Fragment {
         binding = null;
     }
 
+    public String getDeviceModelName() {
+        return Build.MODEL;
+    }
+
     //initialize the Configure Test View using values from TestPreference object
     private void initConfigureView() {
         //init GPS
@@ -92,32 +97,49 @@ public class ConfigureFragment extends Fragment {
         binding.etGPSInterval.setText(String.valueOf(testPref.getGpsInterval()));
 
         //init Sensor
-        if (!testPref.isEnableSensor()) {
+        if (getDeviceModelName().equals(getContext().getString(R.string.A4100A1))) {
+            if (!testPref.isEnableSensor()) {
+                binding.rbSensorOff.setChecked(true);
+                binding.etSensorInterval.setEnabled(false);
+                binding.etSensorInterval.setFocusableInTouchMode(false);
+            } else {
+                switch (testPref.getSensorType()) {
+                    case OFFBODY:
+                        binding.rbProxOnBody.setChecked(true);
+                        break;
+                    case OFFBODYENHANCED:
+                        binding.rbAntiObject.setChecked(true);
+                        break;
+                    case HEARTRATE:
+                        binding.rbHeartRate.setChecked(true);
+                        break;
+                    case OFFBODYANDHEARTRATE:
+                        binding.rbOffBodyAndHeartRate.setChecked(true);
+                        break;
+                    case ECG:
+                        binding.rbEcg.setChecked(true);
+                        break;
+                    case SLEEP_MON:
+                        binding.rbSleepMon.setChecked(true);
+                        break;
+                }
+                binding.etSensorInterval.setEnabled(true);
+                binding.etSensorInterval.setFocusableInTouchMode(true);
+            }
+            binding.etSensorInterval.setText(String.valueOf(testPref.getSensorInterval()));
+        } else {
+            //not A4100A1 model, disable all sensor test selections
+            testPref.setEnableSensor(false);
+            binding.rbProxOnBody.setEnabled(false);
+            binding.rbAntiObject.setEnabled(false);
+            binding.rbHeartRate.setEnabled(false);
+            binding.rbOffBodyAndHeartRate.setEnabled(false);
+            binding.rbEcg.setEnabled(false);
+            binding.rbSleepMon.setEnabled(false);
             binding.rbSensorOff.setChecked(true);
             binding.etSensorInterval.setEnabled(false);
             binding.etSensorInterval.setFocusableInTouchMode(false);
-        } else {
-            switch(testPref.getSensorType()) {
-                case OFFBODY:
-                    binding.rbProxOnBody.setChecked(true);
-                    break;
-                case OFFBODYENHANCED:
-                    binding.rbAntiObject.setChecked(true);
-                    break;
-                case HEARTRATE:
-                    binding.rbHeartRate.setChecked(true);
-                    break;
-                case OFFBODYANDHEARTRATE:
-                    binding.rbOffBodyAndHeartRate.setChecked(true);
-                    break;
-                case ECG:
-                    binding.rbEcg.setChecked(true);
-                    break;
-            }
-            binding.etSensorInterval.setEnabled(true);
-            binding.etSensorInterval.setFocusableInTouchMode(true);
         }
-        binding.etSensorInterval.setText(String.valueOf(testPref.getSensorInterval()));
 
         //init Data Connection
         if (!testPref.isEnableDataConn()) {
@@ -170,47 +192,55 @@ public class ConfigureFragment extends Fragment {
         });
 
         //Sensor radio buttons listener
-        binding.rgSensor.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch(checkedId){
-                    case R.id.rbProxOnBody:
-                        testPref.setSensorType(SensorType.OFFBODY);
-                        testPref.setEnableSensor(true);
-                        binding.etSensorInterval.setEnabled(true);
-                        binding.etSensorInterval.setFocusableInTouchMode(true);
-                        break;
-                    case R.id.rbAntiObject:
-                        testPref.setSensorType(SensorType.OFFBODYENHANCED);
-                        testPref.setEnableSensor(true);
-                        binding.etSensorInterval.setEnabled(true);
-                        binding.etSensorInterval.setFocusableInTouchMode(true);
-                        break;
-                    case R.id.rbHeartRate:
-                        testPref.setSensorType(SensorType.HEARTRATE);
-                        testPref.setEnableSensor(true);
-                        binding.etSensorInterval.setEnabled(true);
-                        binding.etSensorInterval.setFocusableInTouchMode(true);
-                        break;
-                    case R.id.rbOffBodyAndHeartRate:
-                        testPref.setSensorType(SensorType.OFFBODYANDHEARTRATE);
-                        testPref.setEnableSensor(true);
-                        binding.etSensorInterval.setEnabled(true);
-                        binding.etSensorInterval.setFocusableInTouchMode(true);
-                        break;
-                    case R.id.rbEcg:
-                        testPref.setSensorType(SensorType.ECG);
-                        testPref.setEnableSensor(true);
-                        binding.etSensorInterval.setEnabled(true);
-                        binding.etSensorInterval.setFocusableInTouchMode(true);
-                        break;
-                    case R.id.rbSensorOff:
-                        testPref.setEnableSensor(false);
-                        binding.etSensorInterval.setEnabled(false);
-                        binding.etSensorInterval.setFocusableInTouchMode(false);
-                        break;
+        if (getDeviceModelName().equals(getContext().getString(R.string.A4100A1))) {
+            binding.rgSensor.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    switch (checkedId) {
+                        case R.id.rbProxOnBody:
+                            testPref.setSensorType(SensorType.OFFBODY);
+                            testPref.setEnableSensor(true);
+                            binding.etSensorInterval.setEnabled(true);
+                            binding.etSensorInterval.setFocusableInTouchMode(true);
+                            break;
+                        case R.id.rbAntiObject:
+                            testPref.setSensorType(SensorType.OFFBODYENHANCED);
+                            testPref.setEnableSensor(true);
+                            binding.etSensorInterval.setEnabled(true);
+                            binding.etSensorInterval.setFocusableInTouchMode(true);
+                            break;
+                        case R.id.rbHeartRate:
+                            testPref.setSensorType(SensorType.HEARTRATE);
+                            testPref.setEnableSensor(true);
+                            binding.etSensorInterval.setEnabled(true);
+                            binding.etSensorInterval.setFocusableInTouchMode(true);
+                            break;
+                        case R.id.rbOffBodyAndHeartRate:
+                            testPref.setSensorType(SensorType.OFFBODYANDHEARTRATE);
+                            testPref.setEnableSensor(true);
+                            binding.etSensorInterval.setEnabled(true);
+                            binding.etSensorInterval.setFocusableInTouchMode(true);
+                            break;
+                        case R.id.rbEcg:
+                            testPref.setSensorType(SensorType.ECG);
+                            testPref.setEnableSensor(true);
+                            binding.etSensorInterval.setEnabled(true);
+                            binding.etSensorInterval.setFocusableInTouchMode(true);
+                            break;
+                        case R.id.rbSleepMon:
+                            testPref.setSensorType(SensorType.SLEEP_MON);
+                            testPref.setEnableSensor(true);
+                            binding.etSensorInterval.setEnabled(true);
+                            binding.etSensorInterval.setFocusableInTouchMode(true);
+                            break;
+                        case R.id.rbSensorOff:
+                            testPref.setEnableSensor(false);
+                            binding.etSensorInterval.setEnabled(false);
+                            binding.etSensorInterval.setFocusableInTouchMode(false);
+                            break;
+                    }
                 }
-            }
-        });
+            });
+        }
 
         //Data Connection radio buttons listener
         binding.rgDataConnection.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {

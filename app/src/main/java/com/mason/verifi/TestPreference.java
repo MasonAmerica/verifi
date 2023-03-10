@@ -15,7 +15,7 @@ package com.mason.verifi;
 
 
 enum GPSType {IZATSDK, LOCMGR}
-enum SensorType {OFFBODY, OFFBODYENHANCED, HEARTRATE, OFFBODYANDHEARTRATE, ECG}
+enum SensorType {OFFBODY, OFFBODYENHANCED, HEARTRATE, OFFBODYANDHEARTRATE, ECG, SLEEP_MON}
 enum DataConnType {WIFI, CELL}
 //add new test variation here
 

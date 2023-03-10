@@ -43,7 +43,7 @@ https://webhook.site/27e920d2-c12f-4a73-9a21-2bd6ed2aef72
 
 This webhook.site URL will expire after 30 days of first use or after 500 requests.
 To get a new URL address, go to https://webhook.site from your web browser and
-copy the "post" URL address into the code.
+copy the "Your unique URL" address into the code.
 The new URL address should be pasted to the URL_TEST_ADDRESS string in the DataConnTest.java file.
 
 For testing data connection using cellular, disable Wifi because its the default connectivity. 

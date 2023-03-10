@@ -45,12 +45,14 @@ public class SensorAlarm extends BroadcastReceiver {
         if (action.equals(SENSOR_ALARM_ACTION)) {
             //need to start Sensor Test on background thread
             if (MainService.getTestScheduler() != null)
-                MainService.getTestScheduler().startSensorTest();
+                MainService.getTestScheduler().startSensorTest(this);
             else
                 Log.e(TAG, "Failed to start Sensor Test. Null TestScheduler reference");
 
-            //set Alarm again for the next interval
-            startSensorAlarm(context);
+            if (TestPreference.getInstance().getSensorType() != SensorType.SLEEP_MON) {
+                //set Alarm again for the next interval
+                startSensorAlarm(context);
+            }
         }
     }
 

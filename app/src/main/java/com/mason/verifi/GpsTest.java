@@ -29,6 +29,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.qti.location.sdk.IZatFlpService;
 import com.qti.location.sdk.IZatManager;
+import com.qti.location.sdk.IZatServiceUnavailableException;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -102,19 +103,29 @@ public class GpsTest {
 
             Log.d(TAG, "Requesting FLP updates: timeInterval= " + gpsTestInterval + " ms");
 
-            mFlpService = mIzatMgr.connectFlpService();
-            IZatFlpService.IzatFlpRequest req = IZatFlpService.IzatFlpRequest.getBackgroundFlprequest();
+            try {
+                mFlpService = mIzatMgr.connectFlpService();
 
-            req.setPowerMode(1);
-            req.setTimeInterval(gpsTestInterval);
-            req.setTbmMillis(gpsTestInterval);
+                if (mFlpService != null) {
+                    IZatFlpService.IzatFlpRequest req = IZatFlpService.IzatFlpRequest.getBackgroundFlprequest();
 
-            mFlpHandle = mFlpService.startFlpSession(mFlpCallback, req);
+                    req.setPowerMode(1);
+                    req.setTimeInterval(gpsTestInterval);
+                    req.setTbmMillis(gpsTestInterval);
 
-            if (mFlpHandle == null)
-                Log.e(TAG, "Failed to start GPS Test - cannot start FLP session");
-            else
-                Log.i(TAG, "Start GPS Test using QC IZat SDK - Fused Location Provider (FLP)");
+                    mFlpHandle = mFlpService.startFlpSession(mFlpCallback, req);
+
+                    if (mFlpHandle == null)
+                        Log.e(TAG, "Failed to start GPS Test - cannot start FLP session");
+                    else
+                        Log.i(TAG, "Start GPS Test using QC IZat SDK - Fused Location Provider (FLP)");
+                } else {
+                    Log.e(TAG, "Failed to start GPS Test - null FLP service");
+                }
+            } catch (IZatServiceUnavailableException e) {
+                Log.e(TAG, "Failed to start GPS Test - cannot connect to FLP service");
+                parentService.sendStatus("GPS Test using QC IZat SDK is not supported");
+            }
         }
         else
             Log.e(TAG, "Failed to start GPS Test - cannot create FLP Location Callback");

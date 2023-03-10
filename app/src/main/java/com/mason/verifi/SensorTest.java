@@ -20,14 +20,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-//Enable for ECG test
-/*
 import mason.hardware.platform.ECGSensorManager;
 import mason.hardware.platform.MasonHardwareFramework;
 import mason.hardware.platform.ecg.ECGEnergy;
@@ -42,20 +41,24 @@ import mason.hardware.platform.ecg.ECGStress;
 import mason.hardware.platform.ecg.ECGUserID;
 import mason.hardware.platform.ecg.ECGUserMetadata;
 import mason.hardware.platform.ecg.ECGUserPresence;
-*/
 
 // This class starts sensor (HR, Offbody, or ECG) test
 public class SensorTest {
     private static final String TAG = "verifi.SensorTest";
+    private static final String MODEL_A4100A1 = "Mason A4100A1";
     private static final int HEART_RATE_SAMPLE_COUNT = 20;
     private static final int ECG_DURATION_SEC = 20;
 
     private final Context mContext;
+    private SensorAlarm mSensorAlarm;
     private boolean isHRStarted = false;
     private boolean isOffBodyStarted = false;
     private boolean isOffBodyEnhancedStarted = false;
     private boolean isEcgStarted = false;
     private boolean isSpo2Started = false;
+    private boolean isSleepMonitorEnabled = false;
+    private int sleepMonitorState = 0;
+    private float sleepHeartRate = 0;
 
     private final SensorType sensorType;
 
@@ -65,15 +68,13 @@ public class SensorTest {
     //private final Sensor offBodyEnhancedSensor; //Not supported, yet
     private final Sensor spo2Sensor;
 
-    //Enable for ECG test
-    //private final ECGSensorManager ecgManager;
-    //private final Sensor ecgSensorData;
+    private ECGSensorManager ecgManager;
+    private Sensor ecgSensorData;
     //Enable this to get ECG raw sample data
-    //private final Sensor ecgSampleData;
+    //private Sensor ecgSampleData;
 
     private static final int qSensorTypeBase = 33171000;
-
-    private static final int sensorTypeRespiratory = qSensorTypeBase + 5;
+    //private static final int sensorTypeRespiratory = qSensorTypeBase + 5;
     private static final int sensorTypeSpo2 = qSensorTypeBase + 6;
 
     private int heartRateCounter = 0;
@@ -90,20 +91,19 @@ public class SensorTest {
         offBodySensor = sensorManager.getDefaultSensor(Sensor.TYPE_LOW_LATENCY_OFFBODY_DETECT);
         spo2Sensor = sensorManager.getDefaultSensor(sensorTypeSpo2);
 
+        if (getDeviceModelName().equals(MODEL_A4100A1)) {
+            //ECG sensor to be registered with ecgSensorDataTestListener in startEcgSensorTest()
+            ecgSensorData = sensorManager.getDefaultSensor(ECGSensorManager.SensorType.ECG_SENSORS_DATA);
 
-        //Enable for ECG test
-        //ECG sensor manager which is dispatched from ecgSensorDataTestListener's onSensorChanged()
-        //ecgManager = MasonHardwareFramework.get(mContext, ECGSensorManager.class);
+            //Enable this to get ECG raw sample data
+            //ecgSampleData = sensorManager.getDefaultSensor(ECGSensorManager.SensorType.ECG_SAMPLES_DATA);
 
-        //mHeartKeySensorEventListener is is actual listener for handling sensor event
-        //ecgManager.registerEventListener(mHeartKeySensorEventListener);
+            //ECG sensor manager which is dispatched from ecgSensorDataTestListener's onSensorChanged()
+            ecgManager = MasonHardwareFramework.get(mContext, ECGSensorManager.class);
 
-        //ECG sensor to be registered with ecgSensorDataTestListener in startEcgSensorTest()
-        //ecgSensorData = sensorManager.getDefaultSensor(ECGSensorManager.SensorType.ECG_SENSORS_DATA);
-
-        //Enable this to get ECG raw sample data
-        //ecgSampleData = sensorManager.getDefaultSensor(ECGSensorManager.SensorType.ECG_SAMPLES_DATA);
-
+            //mHeartKeySensorEventListener is is actual listener for handling sensor event
+            ecgManager.registerEventListener(mHeartKeySensorEventListener);
+        }
     }
 
     private final SensorEventListener offBodySensorTestListener = new SensorEventListener() {
@@ -129,19 +129,27 @@ public class SensorTest {
         public void onSensorChanged(SensorEvent sensorEvent) {
 
             if (sensorEvent.sensor.getType() == Sensor.TYPE_HEART_RATE) {
-                if (heartRateCounter > 0) {
-                    heartRateCounter--;
-                    //Log.d(TAG, "HR Sensor - Value: " + sensorEvent.values[0] + " Accuracy: " + sensorEvent.accuracy);
+                if (!isSleepMonitorEnabled) {
+                    if (heartRateCounter > 0) {
+                        heartRateCounter--;
+                        //Log.d(TAG, "HR Sensor - Value: " + sensorEvent.values[0] + " Accuracy: " + sensorEvent.accuracy);
 
-                    //only display the last 5 readings to the status fragment to prevent flooding the status screen
-                    //if (heartRateCounter <= 4) {
+                        //only display the last 5 readings to the status fragment to prevent flooding the status screen
+                        //if (heartRateCounter <= 4) {
                         Date df = new Date();
                         String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
-                        sendStatus(ts + " - Heart Rate value: " + sensorEvent.values[0] + " Acc: " + sensorEvent.accuracy);
+                        sendStatus(ts + " - Heart Rate: " + sensorEvent.values[0] + " Acc: " + sensorEvent.accuracy);
 
                         if (heartRateCounter == 0)
                             stopHRSensorTest();
-                    //}
+                        //}
+                    }
+                } else {
+                    if (sensorEvent.accuracy == 3 && sleepMonitorState == 0) {
+                        sleepMonitorState = 1;
+                        //save as sleep HR and report together with blood oxygen
+                        sleepHeartRate = sensorEvent.values[0];
+                    }
                 }
             }
         }
@@ -157,19 +165,36 @@ public class SensorTest {
         public void onSensorChanged(SensorEvent sensorEvent) {
 
             if (sensorEvent.sensor.getType() == sensorTypeSpo2) {
-                if (spo2Counter > 0) {
-                    spo2Counter--;
-                    //Log.d(TAG, "SPO2 Sensor - Value: " + sensorEvent.values[1] + " Accuracy: " + sensorEvent.accuracy);
+                if (!isSleepMonitorEnabled) {
+                    if (spo2Counter > 0) {
+                        spo2Counter--;
+                        //Log.d(TAG, "SPO2 Sensor - Value: " + sensorEvent.values[1] + " Accuracy: " + sensorEvent.accuracy);
 
-                    //only display the last 11 readings to the status fragment to prevent flooding the status screen
-                    //if (spo2Counter <= 10) {
+                        //only display the last 11 readings to the status fragment to prevent flooding the status screen
+                        //if (spo2Counter <= 10) {
                         Date df = new Date();
                         String ts = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(df);
-                        sendStatus(ts + " - SPO2 value: " + sensorEvent.values[1] + " Acc: " + sensorEvent.accuracy);
+                        sendStatus(ts + " - Blood Oxygen: " + sensorEvent.values[1]);
 
                         if (spo2Counter == 0)
                             stopSPO2SensorTest();
-                    //}
+                        //}
+                    }
+                } else {
+                    if (sensorEvent.values[1] != 0.0 && sleepMonitorState == 1) {
+                        sleepMonitorState = 2;
+                        Date df = new Date();
+                        String ts = new SimpleDateFormat("HH:mm:ss", Locale.US).format(df);
+
+                        //send both heart rate and blood oxygen level
+                        sendStatus(ts + ", " + sleepHeartRate + ", " + sensorEvent.values[1]);
+
+                        //stop HR and SPO2 test listener
+                        stopSleepMonitorTest();
+
+                        //restart sensor alarm
+                        mSensorAlarm.startSensorAlarm(mContext);
+                    }
                 }
             }
         }
@@ -184,8 +209,9 @@ public class SensorTest {
     private final SensorEventListener ecgSensorDataTestListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            //Enable for ECG test
-            //ecgManager.dispatch(event);
+            if (getDeviceModelName().equals(mContext.getString(R.string.A4100A1))) {
+                ecgManager.dispatch(event);
+            }
         }
 
         @Override
@@ -210,8 +236,6 @@ public class SensorTest {
     */
 
     //ECG sensor event handler which is invoked by ECG sensor manager
-    //Enable for ECG test
-    /*
     private final ECGEventListener mHeartKeySensorEventListener = new ECGEventListener () {
         @Override
         public void HandleHeartRate(ECGHeartRate ecgHeartRate) {
@@ -312,9 +336,10 @@ public class SensorTest {
             sendStatus(msg);
         }
     };
-    */
 
-    public void startSensorTest() {
+
+    public void startSensorTest(SensorAlarm sensorAlarm) {
+        mSensorAlarm = sensorAlarm;
         switch(sensorType) {
             case OFFBODY:
                 startOffBodySensorTest();
@@ -335,6 +360,9 @@ public class SensorTest {
                 break;
             case ECG:
                 startEcgSensorTest();
+                break;
+            case SLEEP_MON:
+                startSleepMonitorTest();
                 break;
         }
     }
@@ -360,6 +388,9 @@ public class SensorTest {
                 break;
             case ECG:
                 stopEcgSensorTest();
+                break;
+            case SLEEP_MON:
+                stopSleepMonitorTest();
                 break;
         }
     }
@@ -398,6 +429,20 @@ public class SensorTest {
         }
     }
 
+    private void startSleepMonitorTest() {
+        isSleepMonitorEnabled = true;
+        sleepMonitorState = 0;
+        startHRSensorTest();
+        startSPO2SensorTest();
+    }
+
+    private void stopSleepMonitorTest() {
+        stopSPO2SensorTest();
+        stopHRSensorTest();
+        sleepMonitorState = 0;
+        isSleepMonitorEnabled = false;
+    }
+
     private void startOffBodySensorTest() {
         if (!isOffBodyStarted && offBodySensor != null) {
             sensorManager.registerListener(offBodySensorTestListener, offBodySensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -425,32 +470,30 @@ public class SensorTest {
     }
 
     private void startEcgSensorTest() {
-        //Enable for ECG test
-        /*
-        if (!isEcgStarted && ecgSensorData != null) {
-            ecgCounter = ECG_DURATION_SEC;  //initialize the ECG data reading counter
-            sensorManager.registerListener(ecgSensorDataTestListener, ecgSensorData, SensorManager.SENSOR_DELAY_NORMAL);
+        if (getDeviceModelName().equals(mContext.getString(R.string.A4100A1))) {
+            if (!isEcgStarted && ecgSensorData != null) {
+                ecgCounter = ECG_DURATION_SEC;  //initialize the ECG data reading counter
+                sensorManager.registerListener(ecgSensorDataTestListener, ecgSensorData, SensorManager.SENSOR_DELAY_NORMAL);
 
-            //Reading raw ECG sample data is disabled. Uncomment the code below to enable it
-            //sensorManager.registerListener(ecgSampleDataTestListener, ecgSampleData, SensorManager.SENSOR_DELAY_NORMAL);
+                //Reading raw ECG sample data is disabled. Uncomment the code below to enable it
+                //sensorManager.registerListener(ecgSampleDataTestListener, ecgSampleData, SensorManager.SENSOR_DELAY_NORMAL);
 
-            isEcgStarted = true;
+                isEcgStarted = true;
+            }
         }
-        */
     }
 
     private void stopEcgSensorTest() {
-        //Enable for ECG test
-        /*
-        if (isEcgStarted) {
-            sensorManager.unregisterListener(ecgSensorDataTestListener);
+        if (getDeviceModelName().equals(mContext.getString(R.string.A4100A1))) {
+            if (isEcgStarted) {
+                sensorManager.unregisterListener(ecgSensorDataTestListener);
 
-            //Reading raw ECG sample data is disabled. Uncomment the code below to enable it
-            //sensorManager.unregisterListener(ecgSampleDataTestListener);
+                //Reading raw ECG sample data is disabled. Uncomment the code below to enable it
+                //sensorManager.unregisterListener(ecgSampleDataTestListener);
 
-            isEcgStarted = false;
+                isEcgStarted = false;
+            }
         }
-        */
     }
 
     private synchronized void sendStatus(String message){
@@ -459,4 +502,9 @@ public class SensorTest {
         intent.putExtra("status",message);
         mContext.sendBroadcast(intent);
     }
+
+    public String getDeviceModelName() {
+        return Build.MODEL;
+    }
+
 }

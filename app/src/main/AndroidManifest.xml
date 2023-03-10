@@ -57,11 +57,9 @@
             android:enabled="true"
             android:exported="false" />
 
-        <!-- Enable for ECG test -->
-        <!--
         <uses-library android:name="masonamerica.platform" />
-        <uses-library android:name="mason.hardware.platform" />
-        -->
+        <uses-library android:name="mason.hardware.platform" android:required="false" />
+
     </application>
 
 </manifest>
