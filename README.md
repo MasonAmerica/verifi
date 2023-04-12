@@ -93,6 +93,3 @@ And edit the following files:
 6. TestScheduler.java     - add new test option type, object creation, and function handlers.
 
 
-SUPPORT
-
-Send questions to: erichandojo@bymason.com 
