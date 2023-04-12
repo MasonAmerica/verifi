@@ -49,6 +49,8 @@ public class SensorAlarm extends BroadcastReceiver {
             else
                 Log.e(TAG, "Failed to start Sensor Test. Null TestScheduler reference");
 
+            //For SLEEP_MON, don't restart sensor alarm here because it will be restarted in the
+            //SLEEP_MON state machine in SensorTest.java
             if (TestPreference.getInstance().getSensorType() != SensorType.SLEEP_MON) {
                 //set Alarm again for the next interval
                 startSensorAlarm(context);

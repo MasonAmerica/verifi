@@ -124,6 +124,17 @@ public class SensorTest {
         }
     };
 
+    /*
+    State machine for SLEEP_MON:
+    State 0: Initial state
+    State 1: if state is 0 and Heart rate accuracy is 3, capture HR value.
+    State 2: if state is 1 and SPO2 value is not zero:
+               capture SPO2 value,
+               report both HR and SPO2 value,
+               unregister HR amd SPO2 listener,
+               and restart sensor alarm
+     */
+
     private final SensorEventListener heartRateSensorTestListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {

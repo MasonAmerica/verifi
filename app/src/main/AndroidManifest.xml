@@ -57,7 +57,7 @@
             android:enabled="true"
             android:exported="false" />
 
-        <uses-library android:name="masonamerica.platform" />
+        <uses-library android:name="masonamerica.platform" android:required="false" />
         <uses-library android:name="mason.hardware.platform" android:required="false" />
 
     </application>
