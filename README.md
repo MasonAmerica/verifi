@@ -1,4 +1,6 @@
-ABOUT
+# Verifi
+
+## Overview
 
 Verifi is a test application to showcase the battery life performance of a Mason A4100 device
 when performing certain features or combination of features.
@@ -19,10 +21,14 @@ updates along with the timestamp of when the test is performed.
 To measure battery life, users need to charge the battery to 100% then start the test.
 Take note of the time when the first test is started and the time when the battery level is near 0%.
 
+### Required Permissions
+
 The following android permissions are requested and required to be granted:
 1. Location 
 2. Sensors
 3. External storage access
+
+### Starting and stopping the test
 
 To start and stop the test:
 Select the test feature and interval of the test then click on "Start" to start the test.
@@ -48,7 +54,7 @@ The new URL address should be pasted to the URL_TEST_ADDRESS string in the DataC
 
 For testing data connection using cellular, disable Wifi because its the default connectivity. 
 
-BUILD APK
+## Build the APK
 
 To compile and generate APK:
 1. Install and open Verifi folder using Android Studio Dolphin or later version
@@ -57,27 +63,31 @@ To compile and generate APK:
 4. or Select "Run Mason_Verifi"
 
 
-MASON CONFIG
+## Mason Config
 
-To overcome the Android Doze mode limitation, add the following config using
+**IMPORTANT**: to overcome the Android Doze mode limitation and to grant needed app permissions, add the following config using
 Mason Controller or CLI:
+
+```
 apps:
-- name: verifi
-  package_name: com.mason.verifi
-  version_code: latest
-
+  - name: verifi
+    package_name: com.mason.verifi
+    version_code: latest
 os:
-name: verifi_app_config
-version: 1
-configurations:
-mason-sysconfig:
-allow_in_power_save_packages:
-- com.mason.verifi
-allow_unthrottled_location:
-- com.mason.verifi
+  name: verifi_app_config
+  version: 1
+  configurations:
+    mason-sysconfig:
+      allow_in_power_save_packages:
+        - com.mason.verifi
+      allow_unthrottled_location:
+        - com.mason.verifi
+    mason-management:
+      autogrant_runtime_permissions_packages:
+        - com.mason.verifi
+```
 
-
-ADD NEW TEST
+## Add a new test
 
 To add a new test:
 1. Add new test feature class file (NewTest.java)
